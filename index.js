@@ -20,7 +20,7 @@ exports.numberRecall = (request, response) => {
   }
 
   function attemptedSequence(app) {
-    let numberSequence = extractToDigits(app.getArgument("NumberSequence").match(/\d+/g));
+    let numberSequence = extractToDigits(app.getArgument("NumberSequence").match(/\d/g).map(num => parseInt(num)));
     app.ask("You said: " + numberSequence);
   }
 
@@ -30,23 +30,4 @@ exports.numberRecall = (request, response) => {
 
   app.handleRequest(actionMap);
 };
-
-
-function extractToDigits(listOfNumbers) {
-  let reVal = [];
-  for(let i = 0;i < listOfNumbers.length;i++) {
-    let number = Math.abs(listOfNumbers[i]);
-    if (number < 10) {
-      reVal.push(number);
-      continue;
-    }
-    let digits = [];
-    while (number > 0) {
-      digits.push(number % 10);
-      number = Math.floor(number / 10);
-    }
-    reVal.push(...digits.reverse());
-  }
-  return reVal;
-}
 // [END YourAction]
