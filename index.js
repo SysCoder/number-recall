@@ -20,8 +20,19 @@ exports.numberRecall = (request, response) => {
   }
 
   function attemptedSequence(app) {
-    let numberSequence = extractToDigits(app.getArgument("NumberSequence").match(/\d/g).map(num => parseInt(num)));
-    app.ask("You said: " + numberSequence);
+    let numberSequenceUttered = app.getArgument("NumberSequence").match(/\d/g).map(num => parseInt(num));
+    let numberSequencedAskFor = app.getContextArgument(NUMBER_SEQUENCE, "sequence").value;
+    if (numberSequenceUttered.toString() === numberSequencedAskFor.toString()) {
+      let nextRandomNumber = Math.floor(Math.random() * 9) + 1;
+      numberSequencedAskFor.push(nextRandomNumber);
+      app.setContext(NUMBER_SEQUENCE, 100, {"sequence": [numberSequencedAskFor]});
+      app.ask("That is correct! " + numberSequencedAskFor);
+    } else {
+      let nextRandomNumber = Math.floor(Math.random() * 9) + 1;
+      app.setContext(NUMBER_SEQUENCE, 100, {"sequence": [nextRandomNumber]});
+      app.ask(introSpeech + " Let's started with: "  + nextRandomNumber);
+      app.ask("You said: " + numberSequenceUttered + ". That is not correct.");
+    }
   }
 
   const actionMap = new Map();
