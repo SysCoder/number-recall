@@ -14,24 +14,26 @@ exports.numberRecall = (request, response) => {
   // Fulfill action business logic
   function intro (app) {
     let introSpeech = "Welcome to Number Recall. Try your hand at recalling a list of numbers.  We will start with one number. The length will increase by one when you correctly repeat the sequence. The length will decrease by one when you do not repeat the sequence correctly.";
-    let nextRandomNumber = Math.floor(Math.random() * 9) + 1;
-    app.setContext(NUMBER_SEQUENCE, 100, {"sequence": [nextRandomNumber]});
-    app.ask(introSpeech + " Let's start with: "  + nextRandomNumber);
+    let fullSequence = generateSequence(30);
+    app.setContext(NUMBER_SEQUENCE, 100, {"sequence": fullSequence, "endIndex": 1});
+    app.ask(introSpeech + " Let's start with: "  + fullSequence.slice(0,1));
   }
 
   function attemptedSequence(app) {
     let numberSequenceUttered = app.getArgument("NumberSequence").match(/\d/g).map(num => parseInt(num));
-    let numberSequencedAskFor = app.getContextArgument(NUMBER_SEQUENCE, "sequence").value;
+
+    let endIndex = app.getContextArgument(NUMBER_SEQUENCE, "endIndex").value;
+    let fullSequence = app.getContextArgument(NUMBER_SEQUENCE, "sequence").value;
+    let numberSequencedAskFor = fullSequence.slice(0,endIndex);
 
     if (numberSequenceUttered.toString() === numberSequencedAskFor.toString()) {
-      let nextRandomNumber = Math.floor(Math.random() * 9) + 1;
-      numberSequencedAskFor.push(nextRandomNumber);
-      app.setContext(NUMBER_SEQUENCE, 100, {"sequence": numberSequencedAskFor});
-      app.ask("That is correct! ... " + numberSequencedAskFor);
+      endIndex++;
+      app.setContext(NUMBER_SEQUENCE, 100, {"sequence": fullSequence, "endIndex": endIndex});
+      app.ask("That is correct! ... " + fullSequence.slice(0,endIndex));
     } else {
-      numberSequencedAskFor.pop();
-      app.setContext(NUMBER_SEQUENCE, 100, {"sequence": numberSequencedAskFor});
-      app.ask("You said: " + numberSequenceUttered + ". That is not correct. " + numberSequencedAskFor);
+      endIndex--;
+      app.setContext(NUMBER_SEQUENCE, 100, {"sequence": fullSequence, "endIndex": endIndex});
+      app.ask("You said: " + numberSequenceUttered + ". That is not correct. " + fullSequence.slice(0,endIndex));
     }
   }
 
@@ -41,4 +43,13 @@ exports.numberRecall = (request, response) => {
 
   app.handleRequest(actionMap);
 };
+
+function generateSequence(size) {
+  let reVal = [];
+  for (let i = 0;i < size;i++) {
+    reVal.push(Math.floor(Math.random() * 10));
+  }
+  return reVal;
+}
+
 // [END YourAction]
