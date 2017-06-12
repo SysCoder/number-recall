@@ -49,7 +49,7 @@ exports.numberRecall = (request, response) => {
 
     if (numberSequenceUttered.toString() === numberSequencedAskFor.toString()) {
       app.setContext(SCORE, 100, {
-        "maxGameLength": Math.max(maxGameLength, endIndex),
+        "maxGameLength": Math.max(maxGameLength, endIndex + 1),
         "setBacks": setBacks,
       });
       if (endIndex === MAX_SEQUENCE_LENGTH) {
