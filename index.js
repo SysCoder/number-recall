@@ -4,6 +4,8 @@ process.env.DEBUG = 'actions-on-google:*';
 const App = require('actions-on-google').ApiAiApp;
 
 const NUMBER_SEQUENCE = "number_sequence";
+const WON_GAME = "won_game";
+const MAX_SEQUENCE_LENGTH = 5;
 
 // [START numberRecall]
 exports.numberRecall = (request, response) => {
@@ -19,6 +21,12 @@ exports.numberRecall = (request, response) => {
     app.ask(introSpeech + " Let's start with: "  + fullSequence.slice(0,1));
   }
 
+  function introRestart (app) {
+    let fullSequence = generateSequence(30);
+    app.setContext(NUMBER_SEQUENCE, 100, {"sequence": fullSequence, "endIndex": 1});
+    app.ask("Let's start with: "  + fullSequence.slice(0,1));
+  }
+
   function attemptedSequence(app) {
     let numberSequenceUttered = app.getArgument("NumberSequence").match(/\d/g).map(num => parseInt(num));
 
@@ -27,9 +35,14 @@ exports.numberRecall = (request, response) => {
     let numberSequencedAskFor = fullSequence.slice(0,endIndex);
 
     if (numberSequenceUttered.toString() === numberSequencedAskFor.toString()) {
-      endIndex++;
-      app.setContext(NUMBER_SEQUENCE, 100, {"sequence": fullSequence, "endIndex": endIndex});
-      app.ask("That is correct! ... " + fullSequence.slice(0,endIndex));
+      if (endIndex === MAX_SEQUENCE_LENGTH) {
+        app.setContext(WON_GAME,100);
+        app.ask("Congratulations, you completed " + MAX_SEQUENCE_LENGTH + " digits! Do you want to start again?");
+      } else {
+        endIndex++;
+        app.setContext(NUMBER_SEQUENCE, 100, {"sequence": fullSequence, "endIndex": endIndex});
+        app.ask("That is correct! ... " + fullSequence.slice(0,endIndex));
+      }
     } else {
       endIndex--;
       app.setContext(NUMBER_SEQUENCE, 100, {"sequence": fullSequence, "endIndex": endIndex});
@@ -40,6 +53,8 @@ exports.numberRecall = (request, response) => {
   const actionMap = new Map();
   actionMap.set('input.welcome', intro);
   actionMap.set('input.sequence', attemptedSequence);
+  actionMap.set('input.restart_after_win', introRestart);
+  actionMap.set('input.restart', introRestart);
 
   app.handleRequest(actionMap);
 };
