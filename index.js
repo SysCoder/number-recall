@@ -24,7 +24,7 @@ exports.numberRecall = (request, response) => {
       "maxGameLength": 1,
       "setBacks": 1,
     });
-    app.ask(introSpeech + " Let's start with: "  + fullSequence.slice(0,1));
+    app.ask("<speak>" + introSpeech + " Let's start with: "  + fullSequence.slice(0,1) + "<audio src='https://s3-us-west-2.amazonaws.com/number-recall/beep_short.ogg'></audio></speak>");
   }
 
   function introRestart (app) {
@@ -35,7 +35,7 @@ exports.numberRecall = (request, response) => {
       "maxGameLength": 1,
       "setBacks": 1,
     });
-    app.ask("Let's start with: "  + fullSequence.slice(0,endIndex));
+    app.ask("<speak>Let's start with: "  + fullSequence.slice(0,endIndex) + "<audio src='https://s3-us-west-2.amazonaws.com/number-recall/beep_short.ogg'></audio></speak>");
   }
 
   function attemptedSequence(app) {
@@ -59,7 +59,10 @@ exports.numberRecall = (request, response) => {
     .replace(new RegExp("tree", 'g'),"3")
     .replace(new RegExp("pate", 'g'),"8")
     .replace(new RegExp("when's", 'g'),"1")
-    .replace(new RegExp("for", 'g'),"4");
+    .replace(new RegExp("for", 'g'),"4")
+    .replace(new RegExp("v", 'g'),"5")
+    .replace(new RegExp("at", 'g'),"8")
+    .replace(new RegExp("hate", 'g'),"8");
 
     let numberSequenceUttered = rawInput.match(/\d/g).map(num => parseInt(num));
 
@@ -92,7 +95,8 @@ exports.numberRecall = (request, response) => {
         app.setContext(LONGEST_SQUENCE,100,{"longest_sequence": endIndex});
         endIndex++;
         app.setContext(NUMBER_SEQUENCE, 100, {"sequence": fullSequence, "endIndex": endIndex});
-        app.ask("That is correct! ... " + fullSequence.slice(0,endIndex));
+        app.ask({speech: "<speak>That is correct! ... " + fullSequence.slice(0,endIndex) + "<audio src='https://s3-us-west-2.amazonaws.com/number-recall/beep_short.ogg'></audio></speak>",
+                 displayText: "That is correct!"});
       }
     } else {
       app.setContext(SCORE, 100, {
@@ -101,7 +105,8 @@ exports.numberRecall = (request, response) => {
       });
       endIndex = endIndex === 1 ? endIndex : endIndex - 1;
       app.setContext(NUMBER_SEQUENCE, 100, {"sequence": fullSequence, "endIndex": endIndex});
-      app.ask("You said: " + numberSequenceUttered + ". That is not correct. " + fullSequence.slice(0,endIndex));
+      app.ask({speech: "<speak>I heard: " + numberSequenceUttered + ". That is not correct. " + fullSequence.slice(0,endIndex) + "<audio src='https://s3-us-west-2.amazonaws.com/number-recall/beep_short.ogg'></audio></speak>",
+               displayText: "I heard: " + numberSequenceUttered + ". That is not correct. "});
     }
   }
 
@@ -114,13 +119,18 @@ exports.numberRecall = (request, response) => {
   function gameScore(app) {
     let maxGameLength = app.getContextArgument(SCORE, "maxGameLength").value;
     let setBacks = app.getContextArgument(SCORE, "setBacks").value;
-    app.ask("You had " + (setBacks - 1) + " setbacks. Your longest completed sequence is " + (maxGameLength - 1) + ".");
+    if (setBacks - 1 === 1) {
+      app.ask("You had " + (setBacks - 1) + " setback. Your longest completed sequence is " + (maxGameLength - 1) + ".");
+    } else {
+      app.ask("You had " + (setBacks - 1) + " setbacks. Your longest completed sequence is " + (maxGameLength - 1) + ".");
+    }
   }
 
   function repeat(app) {
     let endIndex = app.getContextArgument(NUMBER_SEQUENCE, "endIndex").value;
     let fullSequence = app.getContextArgument(NUMBER_SEQUENCE, "sequence").value;
-    app.ask(fullSequence.slice(0,endIndex).toString());
+    app.ask({speech: "<speak>" + fullSequence.slice(0,endIndex).toString() + "<audio src='https://s3-us-west-2.amazonaws.com/number-recall/beep_short.ogg'></audio></speak>",
+             displayText: " "});
   }
 
   const actionMap = new Map();
