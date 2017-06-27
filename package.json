@@ -15,7 +15,8 @@
   },
   "dependencies": {
     "actions-on-google": "^1.0.0",
-    "dashbot": "^9.0.0"
+    "dashbot": "^9.1.0",
+    "dotenv": "^4.0.0"
   },
   "devDependencies": {
     "semistandard": "^9.1.0"

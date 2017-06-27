@@ -1,7 +1,9 @@
 'use strict';
 
+require('dotenv').config();
 process.env.DEBUG = 'actions-on-google:*';
 const App = require('actions-on-google').ApiAiApp;
+const dashbot = require('dashbot')(process.env.DASHBOT_API_KEY).google;
 
 const NUMBER_SEQUENCE = "number_sequence";
 const LONGEST_SQUENCE = "longest_sequence";
@@ -14,6 +16,7 @@ exports.numberRecall = (request, response) => {
         request,
         response
     });
+    dashbot.configHandler(app);
     console.log('Request headers: ' + JSON.stringify(request.headers));
     console.log('Request body: ' + JSON.stringify(request.body));
 
