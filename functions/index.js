@@ -1,9 +1,9 @@
 'use strict';
 
-require('dotenv').config();
 process.env.DEBUG = 'actions-on-google:*';
 const App = require('actions-on-google').ApiAiApp;
-const dashbot = require('dashbot')(process.env.DASHBOT_API_KEY).google;
+const functions = require('firebase-functions');
+const dashbot = require('dashbot')(functions.config().dashbot.key).google;
 
 const NUMBER_SEQUENCE = "number_sequence";
 const LONGEST_SQUENCE = "longest_sequence";
@@ -11,7 +11,7 @@ const SCORE = "score";
 const WON_GAME = "won_game";
 const MAX_SEQUENCE_LENGTH = 30;
 
-exports.numberRecall = (request, response) => {
+exports.numberRecall = functions.https.onRequest((request, response) => {
     const app = new App({
         request,
         response
@@ -111,10 +111,7 @@ exports.numberRecall = (request, response) => {
                     "sequence": fullSequence,
                     "endIndex": endIndex
                 });
-                app.ask({
-                    speech: "<speak>That is correct! ... " + fullSequence.slice(0, endIndex) + "<audio src='https://s3-us-west-2.amazonaws.com/number-recall/beep_short.ogg'></audio></speak>",
-                    displayText: "That is correct!"
-                });
+                app.ask("<speak>That is correct! ... " + fullSequence.slice(0, endIndex) + "<audio src='https://s3-us-west-2.amazonaws.com/number-recall/beep_short.ogg'></audio></speak>");
             }
         } else {
             app.setContext(SCORE, 100, {
@@ -126,10 +123,7 @@ exports.numberRecall = (request, response) => {
                 "sequence": fullSequence,
                 "endIndex": endIndex
             });
-            app.ask({
-                speech: "<speak>I heard: " + numberSequenceUttered + ". That is not correct. " + fullSequence.slice(0, endIndex) + "<audio src='https://s3-us-west-2.amazonaws.com/number-recall/beep_short.ogg'></audio></speak>",
-                displayText: "I heard: " + numberSequenceUttered + ". That is not correct. "
-            });
+            app.ask("<speak>I heard: " + numberSequenceUttered + ". That is not correct. " + fullSequence.slice(0, endIndex) + "<audio src='https://s3-us-west-2.amazonaws.com/number-recall/beep_short.ogg'></audio></speak>");
         }
     }
 
@@ -152,10 +146,7 @@ exports.numberRecall = (request, response) => {
     function repeat(app) {
         let endIndex = app.getContextArgument(NUMBER_SEQUENCE, "endIndex").value;
         let fullSequence = app.getContextArgument(NUMBER_SEQUENCE, "sequence").value;
-        app.ask({
-            speech: "<speak>" + fullSequence.slice(0, endIndex).toString() + "<audio src='https://s3-us-west-2.amazonaws.com/number-recall/beep_short.ogg'></audio></speak>",
-            displayText: " "
-        });
+        app.ask("<speak>" + fullSequence.slice(0, endIndex).toString() + "<audio src='https://s3-us-west-2.amazonaws.com/number-recall/beep_short.ogg'></audio></speak>");
     }
 
     const actionMap = new Map();
@@ -168,7 +159,7 @@ exports.numberRecall = (request, response) => {
     actionMap.set('input.repeat', repeat);
 
     app.handleRequest(actionMap);
-};
+});
 
 
 function matchWithFirstValueOffByOne(firstText, secondText) {
