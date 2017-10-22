@@ -51,6 +51,7 @@ exports.numberRecall = functions.https.onRequest((request, response) => {
 
     function attemptedSequence(app) {
         let rawInput = app.getRawInput().toLowerCase()
+            .replace(new RegExp("poultry", 'g'), "43")
             .replace(new RegExp("zero", 'g'), "0")
             .replace(new RegExp("one", 'g'), "1")
             .replace(new RegExp("two", 'g'), "2")
@@ -58,22 +59,32 @@ exports.numberRecall = functions.https.onRequest((request, response) => {
             .replace(new RegExp("four", 'g'), "4")
             .replace(new RegExp("five", 'g'), "5")
             .replace(new RegExp("six", 'g'), "6")
+            .replace(new RegExp("next", 'g'), "6")
             .replace(new RegExp("seven", 'g'), "7")
             .replace(new RegExp("eight", 'g'), "8")
             .replace(new RegExp("nine", 'g'), "9")
             .replace(new RegExp("juane", 'g'), "1")
             .replace(new RegExp("sex", 'g'), "6")
-            .replace(new RegExp("to", 'g'), "2")
             .replace(new RegExp("night", 'g'), "9")
-            .replace(new RegExp("do", 'g'), "3")
             .replace(new RegExp("free", 'g'), "3")
             .replace(new RegExp("tree", 'g'), "3")
             .replace(new RegExp("pate", 'g'), "8")
+            .replace(new RegExp("hey", 'g'), "8")
             .replace(new RegExp("when's", 'g'), "1")
             .replace(new RegExp("for", 'g'), "4")
-            .replace(new RegExp("v", 'g'), "5")
+            .replace(new RegExp("find", 'g'), "5")
+            .replace(new RegExp("fire", 'g'), "5")
+            .replace(new RegExp("fun", 'g'), "5")
+            .replace(new RegExp("hi", 'g'), "5")
+            .replace(new RegExp("hate", 'g'), "8")
+            .replace(new RegExp("ate", 'g'), "8")
             .replace(new RegExp("at", 'g'), "8")
-            .replace(new RegExp("hate", 'g'), "8");
+            .replace(new RegExp("do", 'g'), "2")
+            .replace(new RegExp("to", 'g'), "2")
+            .replace(new RegExp("or", 'g'), "4")
+            .replace(new RegExp("no", 'g'), "9")
+            .replace(new RegExp("v", 'g'), "5")
+            .replace(new RegExp("h", 'g'), "8");
 
         let numberSequenceUttered = rawInput.match(/\d/g).map(num => parseInt(num));
 
